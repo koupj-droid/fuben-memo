@@ -2,8 +2,16 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>不便メモ帳｜アイデアの種</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ff7a1a">
+<link rel="icon" href="favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="不便メモ">
 <style>
   :root {
     --bg: #f5f6f8;
@@ -26,6 +34,7 @@
   header {
     background: var(--card); border-bottom: 1px solid var(--line);
     padding: 18px 20px; position: sticky; top: 0; z-index: 10;
+    padding-top: calc(18px + env(safe-area-inset-top));
   }
   header h1 { margin: 0; font-size: 19px; letter-spacing: .02em; }
   header p { margin: 4px 0 0; font-size: 13px; color: var(--sub); }
@@ -297,6 +306,13 @@ $('#f-what').addEventListener('keydown', e => {
 });
 
 render();
+
+// PWA: サービスワーカー登録(オフライン対応・ホーム画面追加)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
