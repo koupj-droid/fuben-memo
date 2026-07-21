@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>不便メモ帳｜アイデアの種</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --ink: #1f2430;
+    --sub: #6b7280;
+    --line: #e5e7eb;
+    --accent: #ff7a1a;
+    --accent-weak: #fff1e6;
+    --self: #3b82f6;
+    --others: #16a34a;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;
+    line-height: 1.7; -webkit-text-size-adjust: 100%;
+  }
+  header {
+    background: var(--card); border-bottom: 1px solid var(--line);
+    padding: 18px 20px; position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { margin: 0; font-size: 19px; letter-spacing: .02em; }
+  header p { margin: 4px 0 0; font-size: 13px; color: var(--sub); }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; box-shadow: var(--shadow); padding: 18px;
+  }
+  .form-card { margin-bottom: 22px; }
+  label { display: block; font-size: 13px; font-weight: 700; margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  .hint { font-weight: 400; color: var(--sub); font-size: 12px; margin-left: 6px; }
+  textarea, input[type=text] {
+    width: 100%; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font-size: 15px; font-family: inherit; resize: vertical;
+    background: #fff; color: var(--ink);
+  }
+  textarea:focus, input:focus { outline: 2px solid var(--accent-weak); border-color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--line); background: #fff; border-radius: 999px;
+    padding: 7px 14px; font-size: 14px; cursor: pointer; user-select: none;
+    transition: .12s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .chip.on.who-self { background: var(--self); border-color: var(--self); }
+  .chip.on.who-others { background: var(--others); border-color: var(--others); }
+  .actions { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
+  button.primary {
+    background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 12px 22px; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  button.primary:hover { filter: brightness(1.05); }
+  button.ghost {
+    background: transparent; border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 14px; font-size: 13px; cursor: pointer; color: var(--sub);
+  }
+  button.ghost:hover { border-color: var(--accent); color: var(--ink); }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin: 8px 0 16px; justify-content: space-between;
+  }
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filter {
+    border: 1px solid var(--line); background: #fff; border-radius: 999px;
+    padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--sub);
+  }
+  .filter.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .count { font-size: 13px; color: var(--sub); }
+
+  .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 16px 16px 14px; margin-bottom: 12px;
+    border-left: 4px solid var(--line);
+  }
+  .item.who-self { border-left-color: var(--self); }
+  .item.who-others { border-left-color: var(--others); }
+  .item .body { font-size: 15px; white-space: pre-wrap; margin: 0 0 10px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tag {
+    font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #f1f2f4; color: var(--sub);
+  }
+  .tag.strong { background: var(--accent-weak); color: #c2410c; font-weight: 700; }
+  .tag.who-self { background: #eff6ff; color: #1d4ed8; font-weight: 700; }
+  .tag.who-others { background: #ecfdf5; color: #15803d; font-weight: 700; }
+  .item .date { font-size: 12px; color: #9ca3af; margin-left: auto; }
+  .item .row { display: flex; gap: 8px; margin-top: 10px; }
+  .item .row button {
+    background: none; border: none; color: #9ca3af; font-size: 12px; cursor: pointer; padding: 2px 4px;
+  }
+  .item .row button:hover { color: #ef4444; text-decoration: underline; }
+  .cope { font-size: 13px; color: var(--sub); margin: 2px 0 10px; }
+  .cope b { color: var(--ink); font-weight: 700; }
+
+  .empty { text-align: center; color: var(--sub); padding: 40px 20px; }
+  .empty .big { font-size: 40px; }
+  footer { text-align: center; color: #9ca3af; font-size: 12px; padding: 10px 0 40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>💡 不便メモ帳</h1>
+  <p>「ちょっと不便」を4項目で記録 → あとで作るものの種にする</p>
+</header>
+
+<div class="wrap">
+  <!-- 入力フォーム -->
+  <div class="card form-card">
+    <label>① 不便の中身 <span class="hint">いつ・どんな場面で困った?</span></label>
+    <textarea id="f-what" rows="2" placeholder="例:遠征先で思いついたアイデアをメモする場所がバラバラで、後で見つからない"></textarea>
+
+    <label>② 今はどうしのいでる?</label>
+    <div class="chips" id="f-cope">
+      <span class="chip" data-v="手作業">手作業</span>
+      <span class="chip" data-v="我慢">我慢</span>
+      <span class="chip" data-v="諦め">諦め</span>
+    </div>
+
+    <label>③ どのくらい頻繁?</label>
+    <div class="chips" id="f-freq">
+      <span class="chip" data-v="毎日">毎日</span>
+      <span class="chip" data-v="週1">週1</span>
+      <span class="chip" data-v="たまに">たまに</span>
+    </div>
+
+    <label>④ 作るとしたら誰得?</label>
+    <div class="chips" id="f-who">
+      <span class="chip who-self" data-v="自分だけ">自分だけ(生活が便利に)</span>
+      <span class="chip who-others" data-v="他の人も">他の人も困ってそう(副業の芽)</span>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="add">この不便を記録</button>
+      <button class="ghost" id="export">Markdownで書き出し</button>
+    </div>
+  </div>
+
+  <!-- 一覧 -->
+  <div class="toolbar">
+    <div class="filters" id="filters">
+      <span class="filter on" data-f="all">すべて</span>
+      <span class="filter" data-f="他の人も">副業の芽だけ</span>
+      <span class="filter" data-f="毎日">毎日困る</span>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="list"></div>
+</div>
+
+<footer>データはこのブラウザ内だけに保存されます(サーバー送信なし)</footer>
+
+<script>
+const KEY = 'fuben-memo-v1';
+const $ = s => document.querySelector(s);
+let items = load();
+let filter = 'all';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+  catch { return []; }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(items)); }
+
+// 単一選択チップ
+function setupChips(id) {
+  const box = $(id);
+  box.addEventListener('click', e => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    const wasOn = chip.classList.contains('on');
+    box.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+    if (!wasOn) chip.classList.add('on');
+  });
+}
+['#f-cope', '#f-freq', '#f-who'].forEach(setupChips);
+
+function selected(id) {
+  const on = $(id).querySelector('.chip.on');
+  return on ? on.dataset.v : '';
+}
+function clearForm() {
+  $('#f-what').value = '';
+  document.querySelectorAll('.form-card .chip.on').forEach(c => c.classList.remove('on'));
+  $('#f-what').focus();
+}
+
+$('#add').addEventListener('click', () => {
+  const what = $('#f-what').value.trim();
+  if (!what) { $('#f-what').focus(); $('#f-what').placeholder = 'まず不便の中身を書いてみよう'; return; }
+  items.unshift({
+    id: Date.now(),
+    what,
+    cope: selected('#f-cope'),
+    freq: selected('#f-freq'),
+    who: selected('#f-who'),
+    date: new Date().toISOString()
+  });
+  save(); clearForm(); render();
+});
+
+function whoClass(who) {
+  if (who === '自分だけ') return 'who-self';
+  if (who === '他の人も') return 'who-others';
+  return '';
+}
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function del(id) {
+  if (!confirm('この記録を削除する?')) return;
+  items = items.filter(x => x.id !== id);
+  save(); render();
+}
+
+function passFilter(it) {
+  if (filter === 'all') return true;
+  if (filter === '他の人も') return it.who === '他の人も';
+  if (filter === '毎日') return it.freq === '毎日';
+  return true;
+}
+
+function render() {
+  const list = $('#list');
+  const shown = items.filter(passFilter);
+  $('#count').textContent = `全${items.length}件` + (filter !== 'all' ? ` / 表示${shown.length}件` : '');
+
+  if (shown.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="big">🌱</div>
+      ${items.length === 0 ? 'まだ記録がありません。<br>最初の「ちょっと不便」を書いてみよう。' : '条件に合う記録がありません。'}</div>`;
+    return;
+  }
+
+  list.innerHTML = shown.map(it => {
+    const wc = whoClass(it.who);
+    const tags = [];
+    if (it.freq) tags.push(`<span class="tag ${it.freq==='毎日'?'strong':''}">${it.freq}</span>`);
+    if (it.cope) tags.push(`<span class="tag">${it.cope}でしのぎ中</span>`);
+    if (it.who) tags.push(`<span class="tag ${wc}">${it.who==='他の人も'?'副業の芽':'自分用'}</span>`);
+    return `<div class="item ${wc}">
+      <p class="body">${esc(it.what)}</p>
+      <div class="meta">${tags.join('')}<span class="date">${fmtDate(it.date)}</span></div>
+      <div class="row"><button data-del="${it.id}">削除</button></div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-del]').forEach(b =>
+    b.addEventListener('click', () => del(Number(b.dataset.del))));
+}
+
+function esc(s) {
+  return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+$('#filters').addEventListener('click', e => {
+  const f = e.target.closest('.filter');
+  if (!f) return;
+  filter = f.dataset.f;
+  $('#filters').querySelectorAll('.filter').forEach(x => x.classList.remove('on'));
+  f.classList.add('on');
+  render();
+});
+
+$('#export').addEventListener('click', () => {
+  if (items.length === 0) { alert('まだ記録がありません。'); return; }
+  let md = `# 不便メモ帳 書き出し (${fmtDate(new Date().toISOString())})\n\n全${items.length}件\n\n`;
+  items.forEach((it, i) => {
+    md += `## ${i+1}. ${it.what.split('\n')[0]}\n\n`;
+    md += `- **不便の中身:** ${it.what.replace(/\n/g, ' ')}\n`;
+    md += `- **今のしのぎ方:** ${it.cope || '—'}\n`;
+    md += `- **頻度:** ${it.freq || '—'}\n`;
+    md += `- **誰得:** ${it.who || '—'}\n`;
+    md += `- **記録日:** ${fmtDate(it.date)}\n\n`;
+  });
+  const blob = new Blob([md], {type: 'text/markdown'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `不便メモ_${fmtDate(new Date().toISOString()).replace(/\//g,'-')}.md`;
+  a.click();
+});
+
+// Enterで改行、Cmd/Ctrl+Enterで登録
+$('#f-what').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') $('#add').click();
+});
+
+render();
+</script>
+</body>
+</html>
